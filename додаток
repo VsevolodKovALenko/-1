@@ -1,0 +1,101 @@
+package com.example.myapplication
+
+import android.content.Context
+import android.hardware.ConsumerIrManager
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var consumerIrManager: ConsumerIrManager
+    fun signal (irPattern: IntArray) {
+        if (consumerIrManager.hasIrEmitter()) {
+            consumerIrManager.transmit(38000, irPattern)
+        }
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val irPattern = intArrayOf();
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.active)
+
+        consumerIrManager = getSystemService(Context.CONSUMER_IR_SERVICE) as ConsumerIrManager
+
+        val Code = findViewById<Button>(R.id.button)
+        Code.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000)
+            signal(ir)
+        }
+        val Code1 = findViewById<Button>(R.id.button1)
+        Code1.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000, 4000, 4000, 4000, 5000, 5000, 5000)
+            signal(ir)
+        }
+        val Code2 = findViewById<Button>(R.id.button2)
+        Code2.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000)
+            signal(ir)
+        }
+        val Code3 = findViewById<Button>(R.id.button3)
+        Code3.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 3000, 2000, 1000, 2000, 3000, 2000, 1000, 2000, 3000, 2000, 1000, 2000, 3000)
+            signal(ir)
+        }
+        val Code4 = findViewById<Button>(R.id.button4)
+        Code4.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000)
+            signal(ir)
+        }
+        val Code5 = findViewById<Button>(R.id.button5)
+        Code5.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000)
+            signal(ir)
+        }
+        val Code6 = findViewById<Button>(R.id.button6)
+        Code6.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 1000, 2000, 1000, 1000, 1000, 2000, 1000, 1000, 1000, 2000, 1000, 1000, 1000)
+            signal(ir)
+        }
+        val Code7 = findViewById<Button>(R.id.button7)
+        Code7.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 1000, 1000, 2000, 1000, 1000, 1000, 2000, 1000, 1000, 1000, 2000, 1000, 1000)
+            signal(ir)
+        }
+        val Code8 = findViewById<Button>(R.id.button8)
+        Code8.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 1000, 1000, 1000, 2000, 1000, 1000, 1000, 1000, 2000, 1000, 1000, 1000, 1000)
+            signal(ir)
+        }
+        val Code9 = findViewById<Button>(R.id.button9)
+        Code9.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000)
+            signal(ir)
+        }
+        val Code10 = findViewById<Button>(R.id.button10)
+        Code10.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 1000, 2000, 2000, 2000, 3000, 3000, 3000, 4000, 4000, 4000, 5000, 5000, 5000, 6000, 6000, 6000, 7000, 7000, 7000)
+            signal(ir)
+        }
+        val Code11 = findViewById<Button>(R.id.button11)
+        Code11.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 3000, 2000, 1000, 2000, 3000, 2000, 1000, 2000, 3000, 2000, 1000, 2000, 3000, 2000, 1000, 2000, 3000, 2000, 1000)
+            signal(ir)
+        }
+        val Code12 = findViewById<Button>(R.id.button12)
+        Code12.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000, 1000)
+            signal(ir)
+        }
+        val Code13 = findViewById<Button>(R.id.button13)
+        Code13.setOnClickListener {
+            val ir = intArrayOf(1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000, 1000, 1000, 2000)
+            signal(ir)
+        }
+        val Code14 = findViewById<Button>(R.id.button14)
+        Code14.setOnClickListener {
+            val ir = intArrayOf(1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000, 1000, 2000, 1000, 1000, 2000,2000,1000)
+            signal(ir)
+        }
+    }
+}
