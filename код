@@ -1,0 +1,284 @@
+#include <Adafruit_NeoPixel.h>
+#include <IRremote.h>
+
+#define PIN            5  // Пін для NeoPixel стрічки
+#define NUMPIXELS      20 // Кількість світлодіодів у стрічці
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+const int irReceiverPin = 2;
+
+bool isStripOn = true;
+
+int brightness =255;
+
+uint32_t savedColor = strip.Color(255, 0, 0);
+
+bool blinking = false;
+bool smoothTransitioning = false;
+bool issnake = false;
+
+
+uint32_t savecolor = strip.Color(0, 0, 0); // Изначально сохранённый цвет - черный
+uint32_t targetColor = strip.Color(0, 0, 0); // Целевой цвет для плавного перехода
+unsigned long transitionStartTime = 0;
+unsigned long transitionDuration = 2000;
+
+void setup()
+{
+  strip.begin();
+  strip.show();
+  Serial.begin(9600);
+ IrReceiver.begin(irReceiverPin, ENABLE_LED_FEEDBACK);; 
+}
+
+void loop()
+{
+  if (IrReceiver.decode()) 
+  {
+    handleIRCommand(IrReceiver.decodedIRData.decodedRawData);
+    //Serial.println( IrReceiver.decodedIRData.decodedRawData, HEX );
+    //Serial.println(brightness);
+    Serial.println(blinking);
+    IrReceiver.resume();
+  }
+  
+  if (blinking) 
+  {
+    blink();
+  } 
+  
+  if (smoothTransitioning)
+  {
+    smoothColorTransition(10);
+  }
+  
+    if (issnake) {
+    // Эффект "змейки"
+    for (int i = 0; i < NUMPIXELS; i++) {
+      // Загораем текущий светодиод
+      strip.setPixelColor(i, strip.Color(random(256), random(256), random(256))); // Цвет (красный в данном случае)
+      strip.show();
+      delay(100);
+
+      // Тушим текущий светодиод
+      strip.setPixelColor(i, strip.Color(0, 0, 0)); // Цвет (черный - выключен)
+    }
+
+    // Дополнительная задержка между проходами змейки
+    delay(500);
+  
+  }
+}
+
+
+
+
+
+
+
+void blink() {
+  // Реализация режима мигания
+  static uint32_t lastUpdateTime = 0;
+  uint32_t currentTime = millis();
+  if (currentTime - lastUpdateTime >= 500) {
+    // Меняем цвет каждые 500 миллисекунд
+    strip.fill(strip.Color(random(256), random(256), random(256)));
+    strip.show();
+    savedColor = strip.getPixelColor(0);
+    lastUpdateTime = currentTime;
+  }
+}
+
+void setColor(uint32_t color) {
+  if (isStripOn) {
+    for(int i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, color);
+    }
+    strip.show();
+    savedColor = color; 
+  } else {
+    // Если лента выключена, не устанавливаем цвет
+  }
+}
+
+void smoothColorTransition(uint8_t delayVal) {
+  static uint32_t colors[] = {
+    strip.Color(255, 0, 0),   // Красный
+    strip.Color(0, 255, 0),   // Зеленый
+    strip.Color(0, 0, 255)    // Синий (можете добавить другие цвета по желанию)
+  };
+  static uint8_t currentColorIndex = 0;
+
+  for (int i = 0; i < NUMPIXELS; i++) {
+    uint8_t r = ((colors[currentColorIndex] >> 16) & 0xFF);
+    uint8_t g = ((colors[currentColorIndex] >> 8) & 0xFF);
+    uint8_t b = (colors[currentColorIndex] & 0xFF);
+
+    // Вычисляем новые значения цвета для каждого светодиода
+    r = calculateColorComponent(r, ((colors[(currentColorIndex + 1) % (sizeof(colors) / sizeof(colors[0]))] >> 16) & 0xFF));
+    g = calculateColorComponent(g, ((colors[(currentColorIndex + 1) % (sizeof(colors) / sizeof(colors[0]))] >> 8) & 0xFF));
+    b = calculateColorComponent(b, (colors[(currentColorIndex + 1) % (sizeof(colors) / sizeof(colors[0]))] & 0xFF));
+
+    strip.setPixelColor(i, strip.Color(r, g, b));
+  }
+
+  strip.show();
+  delay(delayVal);
+
+  // Обновляем индекс текущего цвета для следующей итерации
+  currentColorIndex = (currentColorIndex + 1) % (sizeof(colors) / sizeof(colors[0]));
+savedColor = strip.getPixelColor(0);
+}
+
+uint8_t calculateColorComponent(uint8_t current, uint8_t target) {
+  if (current < target) {
+    return current + 1;
+  } else if (current > target) {
+    return current - 1;
+  } else {
+    return current;
+  }
+}
+
+void toggleStrip() {
+  isStripOn = !isStripOn;
+  if (!isStripOn) {
+    strip.clear(); // Выключаем все светодиоды
+    strip.show();
+    blinking = false;
+     smoothTransitioning = false;
+    issnake =false;
+  } else {
+    setColor(savedColor); // Включаем ленту с сохраненным цветом
+  }
+}
+
+void handleIRCommand(long data)
+{
+  switch(data)
+  {
+    
+    case 0xEF10BF00:
+     setColor(strip.Color(255, 0, 0));
+    blinking = false;
+      smoothTransitioning =false;
+    issnake =false;
+      break;
+     case 0xEE11BF00:
+     setColor(strip.Color(0, 255, 0));
+   blinking = false;
+     smoothTransitioning =false;
+    issnake =false;
+      break;
+    case 0xED12BF00:
+     setColor(strip.Color(0, 0, 255));
+  blinking = false;
+     smoothTransitioning =false;
+    issnake =false;
+      break;
+    case 0xEB14BF00:
+     setColor(strip.Color(255, 255, 0));
+    blinking = false;
+     smoothTransitioning =false;
+  issnake =false;
+      break;
+    case 0xEA15BF00:
+     setColor(strip.Color(255, 0, 255));
+    blinking = false;
+    smoothTransitioning =false;
+    issnake =false;
+      break;
+    case 0xE916BF00:
+     setColor(strip.Color(0, 255, 50));
+    blinking = false;
+     smoothTransitioning =false;
+    issnake =false;
+      break;
+    case 0xE718BF00:
+     setColor(strip.Color(255, 128, 0));
+   blinking = false;
+     smoothTransitioning =false;
+    issnake =false;
+      break;
+    case 0xE619BF00:
+     setColor(strip.Color(128, 128, 255));
+   blinking = false;
+     smoothTransitioning =false;
+    issnake =false;
+      break;
+    case 0xE51ABF00:
+     setColor(strip.Color(128, 128, 128));
+   blinking = false;
+     smoothTransitioning =false;
+    issnake =false;
+      break;
+    
+   case 0xF50ABF00:
+    
+    if(data!=0xF708BF00 && brightness<255 && !blinking)
+    {
+      
+    brightness +=51;
+     strip.setBrightness(brightness);
+    strip.show();
+      break;
+    }
+    break;
+    case 0xF708BF00:
+    
+    if(data!=0xF50ABF00&&brightness>51 && !blinking)
+    {
+      
+     brightness -=51;
+     strip.setBrightness(brightness);
+    strip.show();
+      
+      break;
+    }
+    break;
+    
+    case 0xFB04BF00:
+    
+    if(blinking)
+    {
+      blinking =false;
+    }
+    else
+    {
+      blinking = true;
+    }
+    break;
+    case 0xFF00BF00: 
+   
+      toggleStrip();
+      break; 
+     
+    case 0xFE01BF00:
+    
+    if(smoothTransitioning)
+    {
+      smoothTransitioning =false;
+    }
+    else
+    {
+      smoothTransitioning = true;
+    }
+    
+  
+     break; 
+     
+  
+  case 0xF10EBF00:
+    if(issnake)
+    {
+      issnake =false;
+    }
+    else
+    {
+      issnake = true;
+    }
+ break;
+  
+}
+}
